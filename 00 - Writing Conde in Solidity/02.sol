@@ -31,7 +31,7 @@ contract SmartBankAccount {
     mapping(address => uint256) depositTimestamps;
 
     function addBalance() public payable {
-        balances[msg.sender] = balances[msg.sender] + msg.value;
+        balances[msg.sender] += msg.value;
         totalContractBalance = totalContractBalance + msg.value;
         depositTimestamps[msg.sender] = block.timestamp;
 
@@ -44,11 +44,12 @@ contract SmartBankAccount {
     }
 
     function withdraw(uint256 _amountToTransfer) public payable {
+        require(_amountToTransfer <= getBalance(msg.sender));
         uint256 amountToTransfer = _amountToTransfer;
 
         ceth.redeem(amountToTransfer);
-        totalContractBalance = totalContractBalance - amountToTransfer;
-        balances[msg.sender] = balances[msg.sender] - amountToTransfer;
+        totalContractBalance -= amountToTransfer;
+        balances[msg.sender] -= amountToTransfer;
         payable(msg.sender).transfer(amountToTransfer);
     }
 
